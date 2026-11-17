@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f9d8e8">
+<title>Princess Day Surprise</title>
+<style>
+:root{--pink:#d94f8b;--deep:#8e315f;--pale:#fff4f9}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:22px 14px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at top,#fff 0,#ffe9f2 45%,#f9cfe1 100%);font-family:system-ui,-apple-system,sans-serif;color:var(--deep)}
+.card{width:100%;max-width:440px;background:#ffffffed;border:1px solid #f5bad2;border-radius:26px;padding:26px 20px;box-shadow:0 16px 45px #a63b6b20;text-align:center}
+.crown{font-size:52px}h1{font-family:Georgia,serif;color:var(--pink);font-size:clamp(29px,8vw,38px);margin:5px 0 8px}
+.intro{line-height:1.55;margin:0 auto 20px;color:#9b5274}
+label{display:block;text-align:left;font-weight:650;margin:13px 0 6px}
+input{width:100%;padding:14px;border:1.5px solid #edb0ca;border-radius:13px;font-size:16px;background:#fffafd;color:#69304d;outline:none}
+input:focus{border-color:var(--pink);box-shadow:0 0 0 3px #f8d5e5}
+button{width:100%;padding:14px;border:0;border-radius:14px;font-size:16px;font-weight:700;margin-top:13px;cursor:pointer}
+.primary{background:linear-gradient(100deg,#e65d99,#bf4c88);color:white}
+.secondary{background:#fff0f6;color:#a23c6e;border:1px solid #f0b7d0}
+#result{display:none;margin-top:18px;padding:19px 15px;background:var(--pale);border:1px dashed #e99abc;border-radius:17px;line-height:1.75;white-space:pre-line;text-align:center}
+#result h2{font-family:Georgia,serif;color:var(--pink);margin:0 0 8px}
+.note{font-size:12px;color:#a56c87;line-height:1.5;margin-top:17px}
+.error{color:#b42352;font-size:13px;text-align:left;margin-top:7px;min-height:18px}
+</style>
+</head>
+<body>
+<main class="card">
+ <div class="crown">👑</div>
+ <h1>Happy Princess Day!</h1>
+ <p class="intro">अपनी प्यारी Princess के लिए एक खास सरप्राइज बनाइए। 💗</p>
+
+ <label for="princess">Princess का नाम</label>
+ <input id="princess" maxlength="40" placeholder="जैसे: मेरी प्यारी बहना" autocomplete="off">
+
+ <label for="phone">मोबाइल नंबर (WhatsApp)</label>
+ <input id="phone" type="tel" inputmode="tel" maxlength="16" placeholder="जैसे: 9876543210" autocomplete="tel">
+ <div class="error" id="error" aria-live="polite"></div>
+
+ <button class="primary" id="make">💝 Surprise बनाओ</button>
+
+ <section id="result" aria-live="polite">
+  <h2 id="heading">For You, Princess! 👸</h2>
+  <div id="message"></div>
+ </section>
+ <button class="primary" id="wa" style="display:none">WhatsApp पर Wish भेजें ↗</button>
+ <button class="secondary" id="copy" style="display:none">मैसेज कॉपी करें</button>
+ <button class="secondary" id="reset" style="display:none">फिर से बनाएं</button>
+ <p class="note">आपका नाम या मोबाइल नंबर कहीं सेव नहीं होता। WhatsApp खुलेगा तो भेजने से पहले आप मैसेज देख और खुद Send कर सकते हैं।</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let messageText='', phoneDigits='';
+$('make').addEventListener('click',()=>{
+ const name=$('princess').value.trim();
+ const raw=$('phone').value.trim();
+ phoneDigits=raw.replace(/\D/g,'');
+ $('error').textContent='';
+ if(!name){$('error').textContent='कृपया Princess का नाम लिखें।';$('princess').focus();return;}
+ if(!/^\d{10,13}$/.test(phoneDigits)){ $('error').textContent='कृपया country code सहित सही मोबाइल नंबर लिखें (10–13 अंक)।';$('phone').focus();return;}
+ if(phoneDigits.length===10) phoneDigits='91'+phoneDigits;
+ messageText=`👑 Happy Princess Day, ${name}! 💗\n\nतुम मेरी जिंदगी की सबसे प्यारी Princess हो। 🌸\nतुम्हारी मुस्कान हमेशा बनी रहे, तुम्हारे सारे सपने पूरे हों और जिंदगी खुशियों से भरी रहे। ✨\n\nहमेशा खुश रहो और चमकती रहो। बहुत सारा प्यार! 💕`;
+ $('heading').textContent=`For You, ${name}! 👸`;
+ $('message').textContent=messageText;
+ $('result').style.display='block';
+ $('wa').style.display='block';$('copy').style.display='block';$('reset').style.display='block';
+ $('make').style.display='none';
+});
+$('wa').addEventListener('click',()=>{
+ const url='https://wa.me/'+phoneDigits+'?text='+encodeURIComponent(messageText);
+ window.location.href=url;
+});
+$('copy').addEventListener('click',async()=>{
+ try{await navigator.clipboard.writeText(messageText);$('copy').textContent='कॉपी हो गया ✓';}
+ catch(e){const t=document.createElement('textarea');t.value=messageText;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();$('copy').textContent='कॉपी हो गया ✓';}
+});
+$('reset').addEventListener('click',()=>{
+ $('princess').value='';$('phone').value='';$('result').style.display='none';
+ $('wa').style.display='none';$('copy').style.display='none';$('reset').style.display='none';
+ $('make').style.display='block';$('copy').textContent='मैसेज कॉपी करें';$('error').textContent='';
+});
+</script>
+</body>
+</html>
